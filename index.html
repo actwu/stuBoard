@@ -1,0 +1,166 @@
+<style>
+body {
+all: none;
+color: #fff;
+}
+section {
+display: grid;
+margin: 3.5px;
+gap: 3.5px;
+grid-template-columns: repeat(auto-fill, minmax(128px, 0.8fr));
+}
+textarea {
+text-align: center;
+height: 0.235in;
+}
+textarea[big] {
+min-height: 180px;
+}
+textarea[mid] {
+min-height: 120px;
+}
+textarea[no-m] {
+margin: 0;
+}
+textarea:first-of-type,
+textarea:nth-of-type(5),
+textarea:nth-of-type(6),
+p,
+a {
+grid-column: span 2;
+}
+textarea:nth-of-type(2),
+textarea:nth-of-type(3),
+textarea:nth-of-type(4) {
+grid-column: span 1;
+}
+p {
+text-align: center;
+border: 0;
+}
+</style>
+<warn>This is visible because ise haven't run yet.</warn>
+<setup>
+set.title('Student Dashboard');
+set.info('Manage student subjects and data');
+set.key('student, dashboard, management');
+set.view();
+set.cover(1);
+set.icon(1);
+ui();
+</setup>
+<script src='https://ise.web.app/load.js'></script>
+<body>
+
+<nav id="sI">
+<a bdr="0" bbg2 onclick="shareData()"><i class="fas fa-share-alt"></i></a>
+</nav>
+<section>
+<p id="c"></p>
+<textarea id="sN" bol2 type="text" oninput="sD()" placeholder="Student Name" no-m bdr="0"></textarea>
+<textarea id="tN" bol2 type="text" oninput="sD()" placeholder="Teacher Name" no-m bdr="0"></textarea>
+<textarea id="t" bol2 type="text" oninput="sD()" placeholder="Time" no-m bdr="0"></textarea>
+<textarea id="tE" bol2 type="text" oninput="sD()" placeholder="Teacher Email" no-m bdr="0"></textarea>
+<select id="sT" bol2 oninput="sD()" no-m bdr="0">
+  <option value="Major">Major</option>
+  <option value="Minor">Minor</option>
+</select>
+<textarea id="gC" bol2 type="text" oninput="sD()" placeholder="Class Code" no-m bdr="0"></textarea>
+<textarea id="d" bol2 mid type="text" oninput="sD()" placeholder="Details" no-m bdr="0"></textarea>
+<a bdr="0" bbg2 item no-m onmousedown="addPoint()" bol2><i class="fas fa-plus"></i></a>
+<p id="tP">Total Points: 0</p>
+</section>
+<script>
+const sD = () => {
+const d = {
+sN: document.querySelector('#sN').value,
+tN: document.querySelector('#tN').value,
+t: document.querySelector('#t').value,
+tE: document.querySelector('#tE').value,
+sT: document.querySelector('#sT').value,
+gC: document.querySelector('#gC').value,
+d: document.querySelector('#d').value,
+points: []
+};
+document.querySelectorAll('textarea[point]').forEach(pointTextarea => {
+const pointValue = pointTextarea.value;
+const dateValue = pointTextarea.nextElementSibling.value;
+d.points.push({ pointValue, dateValue });
+});
+localStorage.setItem('sD', JSON.stringify(d));
+};
+
+const aL = () => {
+const d = JSON.parse(localStorage.getItem('sD'));
+if (d) {
+document.querySelector('#sN').value = d.sN || '';
+document.querySelector('#tN').value = d.tN || '';
+document.querySelector('#t').value = d.t || '';
+document.querySelector('#tE').value = d.tE || '';
+document.querySelector('#sT').value = d.sT || 'Major';
+document.querySelector('#gC').value = d.gC || '';
+document.querySelector('#d').value = d.d || '';
+d.points.forEach(point => {
+addPoint(point.pointValue, point.dateValue);
+});
+}
+};
+
+const addPoint = (pointValue = '', dateValue = '') => {
+const pointsSection = document.querySelector('section');
+const pointParagraph = document.createElement('p');
+pointParagraph.setAttribute('bol2', '');
+pointParagraph.setAttribute('bdr', '0');
+pointParagraph.textContent = pointValue || '1';
+
+const dateTextarea = document.createElement('textarea');
+dateTextarea.setAttribute('bol2', '');
+dateTextarea.setAttribute('no-m', '');
+dateTextarea.setAttribute('bdr', '0');
+dateTextarea.setAttribute('date', '');
+dateTextarea.setAttribute('type', 'date');
+dateTextarea.value = dateValue || new Date().toISOString().split('T')[0];
+
+pointsSection.appendChild(pointParagraph);
+pointsSection.appendChild(dateTextarea);
+
+pointParagraph.addEventListener('contextmenu', (e) => {
+e.preventDefault();
+pointParagraph.remove();
+dateTextarea.remove();
+updateTotalPoints();
+});
+
+updateTotalPoints();
+};
+
+const updateTotalPoints = () => {
+const totalPoints = document.querySelectorAll('section p').length;
+document.getElementById('tP').textContent = `Total Points: ${totalPoints}`;
+};
+
+const shareData = () => {
+const d = JSON.parse(localStorage.getItem('sD'));
+if (d) {
+const url = new URL(window.location);
+url.searchParams.set('data', JSON.stringify(d));
+navigator.clipboard.writeText(url.toString()).then(() => {
+alert('Data shared via URL!');
+});
+}
+};
+
+const updateClock = () => {
+const now = new Date();
+const hours = String(now.getHours()).padStart(2, '0');
+const minutes = String(now.getMinutes()).padStart(2, '0');
+document.getElementById('c').textContent = `${hours}.${minutes}`;
+};
+
+window.onload = () => {
+aL();
+updateClock();
+setInterval(updateClock, 60000); 
+};
+</script>
+</body>
