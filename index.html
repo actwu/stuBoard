@@ -19,160 +19,157 @@ ui();
 </setup>
 <script src='https://ise.web.app/load.js'></script>
 <body>
-<cont top bar bbg center fixed><p id="clock"></p></cont>
-<screen id="classes" center>
+<cont top bar bbg center fixed><p id="clk"></p></cont>
+<screen id="cls" center>
 <div id="clsList" flex></div>
-<a bdr="0" bbg2 onclick="addCls()">Add Class</a>
+<a bdr="0" bbg2 onclick="addClass()">Add Class</a>
 </screen>
 <screen id="clsInfo" hide scroll center>
 <nav bbg bdr="0">
-<a onclick="show('#classes'); hide('#clsInfo')">Back</a>
-<a bdr="0" bbg2 onclick="shareCls()"><i class="fas fa-share-alt"></i></a>
-<a bdr="0" bbg2 item no-m onmousedown="addPnt()" bol2><i class="fas fa-plus"></i></a>
+<a onclick="show('#cls'); hide('#clsInfo')">Back</a>
+<a bdr="0" bbg2 onclick="shareData()"><i class="fas fa-share-alt"></i></a>
+<a bdr="0" bbg2 item no-m onmousedown="addPoint()" bol2><i class="fas fa-plus"></i></a>
 </nav>
-<section id="clsDetails" data-cls-id="">
-<textarea id="stdName" bol2 type="text" oninput="saveData()" placeholder="Student Name" no-m bdr="0"></textarea>
-<textarea id="tchrName" bol2 type="text" oninput="saveData()" placeholder="Teacher Name" no-m bdr="0"></textarea>
-<textarea id="clsTime" bol2 type="text" oninput="saveData()" placeholder="Time" no-m bdr="0"></textarea>
-<textarea id="tchrEmail" bol2 type="text" oninput="saveData()" placeholder="Teacher Email" no-m bdr="0"></textarea>
-<select id="subType" bol2 oninput="saveData()" no-m bdr="0">
+<section id="clsDet" data-id="">
+<textarea id="sN" bol2 type="text" placeholder="Student Name" no-m bdr="0" oninput="updateClassData()"></textarea>
+<textarea id="tN" bol2 type="text" placeholder="Teacher Name" no-m bdr="0" oninput="updateClassData()"></textarea>
+<textarea id="t" bol2 type="text" placeholder="Time" no-m bdr="0" oninput="updateClassData()"></textarea>
+<textarea id="tE" bol2 type="text" placeholder="Teacher Email" no-m bdr="0" oninput="updateClassData()"></textarea>
+<select id="sT" bol2 oninput="updateClassData()" no-m bdr="0">
 <option value="Major">Major</option>
 <option value="Minor">Minor</option>
 </select>
-<textarea id="clsCode" bol2 type="text" oninput="saveData()" placeholder="Class Code" no-m bdr="0"></textarea>
-<textarea id="clsDetails" bol2 mid type="text" oninput="saveData()" placeholder="Details" no-m bdr="0"></textarea>
-<p id="totalPnts">Points: 0</p>
+<textarea id="gC" bol2 type="text" placeholder="Class Code" no-m bdr="0" oninput="updateClassData()"></textarea>
+<textarea id="d" bol2 mid type="text" placeholder="Details" no-m bdr="0" oninput="updateClassData()"></textarea>
+<p id="tP">Points: 0</p>
 </section>
 </screen>
 <script>
-const clsData = JSON.parse(localStorage.getItem('clsData')) || {};
+const save = (k, v) => {
+localStorage.setItem(k, v);
+const p = new URLSearchParams(window.location.search);
+p.set(k, v);
+history.replaceState(null, '', '?' + p.toString());
+};
 
-const saveData = () => {
-const clsId = document.querySelector('#clsDetails').dataset.clsId;
-if (!clsId) return;
+save.load = (k, sel) => {
+const v = localStorage.getItem(k) || new URLSearchParams(window.location.search).get(k);
+const t = document.querySelector(sel);
+if (t) t.value = v;
+};
+
+const classData = JSON.parse(localStorage.getItem('classData')) || {};
+
+const updateClassData = () => {
+const id = document.querySelector('#clsDet').dataset.id;
+if (!id) return;
 const data = {
-stdName: document.querySelector('#stdName').value,
-tchrName: document.querySelector('#tchrName').value,
-clsTime: document.querySelector('#clsTime').value,
-tchrEmail: document.querySelector('#tchrEmail').value,
-subType: document.querySelector('#subType').value,
-clsCode: document.querySelector('#clsCode').value,
-clsDetails: document.querySelector('#clsDetails').value,
-points: []
+sN: document.querySelector('#sN').value,
+tN: document.querySelector('#tN').value,
+t: document.querySelector('#t').value,
+tE: document.querySelector('#tE').value,
+sT: document.querySelector('#sT').value,
+gC: document.querySelector('#gC').value,
+d: document.querySelector('#d').value,
+pts: Array.from(document.querySelectorAll('section p.pt')).map(p => ({ pt: p.textContent })),
 };
-document.querySelectorAll('section p.pnt').forEach(pnt => {
-data.points.push({ pntValue: pnt.textContent });
-});
-clsData[clsId] = data;
-localStorage.setItem('clsData', JSON.stringify(clsData));
+classData[id] = data;
+localStorage.setItem('classData', JSON.stringify(classData));
 };
 
-const loadAllCls = () => {
-for (const [clsId, data] of Object.entries(clsData)) {
-addCls(clsId, data);
+const addClass = (id = Date.now().toString(), data = {}) => {
+const classList = document.getElementById('clsList');
+const classItem = document.createElement('a');
+classItem.textContent = `Class ${classList.children.length + 1}`;
+classItem.setAttribute('bol2', '');
+classItem.setAttribute('bdr', '0');
+classItem.onclick = () => {
+show('#clsInfo');
+hide('#cls');
+loadClassData(id, data);
+};
+classItem.addEventListener('contextmenu', (e) => {
+e.preventDefault();
+classItem.remove();
+delete classData[id];
+localStorage.setItem('classData', JSON.stringify(classData));
+});
+classList.appendChild(classItem);
+};
+
+const loadClassData = (id, data) => {
+document.querySelector('#clsDet').dataset.id = id;
+document.querySelector('#sN').value = data.sN || '';
+document.querySelector('#tN').value = data.tN || '';
+document.querySelector('#t').value = data.t || '';
+document.querySelector('#tE').value = data.tE || '';
+document.querySelector('#sT').value = data.sT || 'Major';
+document.querySelector('#gC').value = data.gC || '';
+document.querySelector('#d').value = data.d || '';
+document.querySelectorAll('section p.pt').forEach(p => p.remove());
+data.pts.forEach(pt => {
+const pointParagraph = document.createElement('p');
+pointParagraph.setAttribute('bol2', '');
+pointParagraph.setAttribute('bdr', '0');
+pointParagraph.classList.add('pt');
+pointParagraph.textContent = pt.pt;
+document.querySelector('section').appendChild(pointParagraph);
+pointParagraph.addEventListener('contextmenu', (e) => {
+e.preventDefault();
+pointParagraph.remove();
+updateTotalPoints();
+});
+});
+updateTotalPoints();
+};
+
+const addPoint = () => {
+const pointsSection = document.querySelector('section');
+const date = new Date().toLocaleString();
+const pointParagraph = document.createElement('p');
+pointParagraph.setAttribute('bol2', '');
+pointParagraph.setAttribute('bdr', '0');
+pointParagraph.classList.add('pt');
+pointParagraph.textContent = `1 - ${date}`;
+pointsSection.appendChild(pointParagraph);
+pointParagraph.addEventListener('contextmenu', (e) => {
+e.preventDefault();
+pointParagraph.remove();
+updateTotalPoints();
+});
+updateTotalPoints();
+};
+
+const updateTotalPoints = () => {
+const totalPoints = document.querySelectorAll('section p.pt').length;
+document.getElementById('tP').textContent = `Points: ${totalPoints}`;
+const id = document.querySelector('#clsDet').dataset.id;
+if (id) {
+classData[id].pts = Array.from(document.querySelectorAll('section p.pt')).map(p => ({ pt: p.textContent }));
+localStorage.setItem('classData', JSON.stringify(classData));
 }
 };
 
-const addPnt = () => {
-const pointsSection = document.querySelector('section');
-const date = new Date().toLocaleString();
-const pnt = document.createElement('p');
-pnt.setAttribute('bol2', '');
-pnt.setAttribute('bdr', '0');
-pnt.classList.add('pnt');
-pnt.textContent = `1 - ${date}`;
-pointsSection.appendChild(pnt);
-pnt.addEventListener('contextmenu', (e) => {
-e.preventDefault();
-pnt.remove();
-updatePnts();
-saveData();
-});
-updatePnts();
-saveData();
-};
-
-const updatePnts = () => {
-const total = document.querySelectorAll('section p.pnt').length;
-document.getElementById('totalPnts').textContent = `Points: ${total}`;
-};
-
-const shareCls = () => {
+const shareData = () => {
 const url = new URL(window.location);
-url.searchParams.set('data', JSON.stringify(clsData));
+url.searchParams.set('data', JSON.stringify(classData));
 navigator.clipboard.writeText(url.toString()).then(() => {
 alert('Data shared via URL!');
 });
-};
-
-const addCls = (clsId = Date.now().toString(), data = {}) => {
-const clsList = document.getElementById('clsList');
-const clsItem = document.createElement('a');
-clsItem.textContent = `Class ${clsList.children.length + 1}`;
-clsItem.setAttribute('bol2', '');
-clsItem.setAttribute('bdr', '0');
-clsItem.onclick = () => {
-show('#clsInfo');
-hide('#classes');
-loadClsData(clsId, data);
-};
-clsItem.addEventListener('contextmenu', (e) => {
-e.preventDefault();
-clsItem.remove();
-delete clsData[clsId];
-localStorage.setItem('clsData', JSON.stringify(clsData));
-});
-clsList.appendChild(clsItem);
-};
-
-const loadClsData = (clsId, data) => {
-document.querySelector('#clsDetails').dataset.clsId = clsId;
-document.querySelector('#stdName').value = data.stdName || '';
-document.querySelector('#tchrName').value = data.tchrName || '';
-document.querySelector('#clsTime').value = data.clsTime || '';
-document.querySelector('#tchrEmail').value = data.tchrEmail || '';
-document.querySelector('#subType').value = data.subType || 'Major';
-document.querySelector('#clsCode').value = data.clsCode || '';
-document.querySelector('#clsDetails').value = data.clsDetails || '';
-document.querySelectorAll('section p.pnt').forEach(p => p.remove());
-data.points.forEach(point => {
-const pnt = document.createElement('p');
-pnt.setAttribute('bol2', '');
-pnt.setAttribute('bdr', '0');
-pnt.classList.add('pnt');
-pnt.textContent = point.pntValue;
-document.querySelector('section').appendChild(pnt);
-pnt.addEventListener('contextmenu', (e) => {
-e.preventDefault();
-pnt.remove();
-updatePnts();
-saveData();
-});
-});
-updatePnts();
-};
-
-const loadDataFromUrl = () => {
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.has('data')) {
-const data = JSON.parse(urlParams.get('data'));
-for (const [clsId, clsInfo] of Object.entries(data)) {
-addCls(clsId, clsInfo);
-}
-}
 };
 
 const updateClock = () => {
 const now = new Date();
 const hours = String(now.getHours()).padStart(2, '0');
 const minutes = String(now.getMinutes()).padStart(2, '0');
-document.getElementById('clock').textContent = `${hours}:${minutes}`;
+document.getElementById('clk').textContent = `${hours}:${minutes}`;
 };
 
 window.onload = () => {
-loadAllCls();
-loadDataFromUrl();
-show('#classes');
+Object.entries(classData).forEach(([id, data]) => addClass(id, data));
+['sN', 'tN', 't', 'tE', 'sT', 'gC', 'd'].forEach(id => save.load(id, `#${id}`));
+updateTotalPoints();
+show('#cls');
 hide('#clsInfo');
 setInterval(updateClock, 1000);
 };
