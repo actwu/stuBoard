@@ -28,6 +28,7 @@ ui();
 <nav bbg bdr="0">
 <a onclick="show('#classes'); hide('#classinfo')">Back</a>
 <a bdr="0" bbg2 onclick="shareData()"><i class="fas fa-share-alt"></i></a>
+<a bdr="0" bbg2 item no-m onmousedown="addPoint()" bol2><i class="fas fa-plus"></i></a>
 </nav>
 <section id="classDetails" data-class-id="">
 <textarea id="sN" bol2 type="text" oninput="sD()" placeholder="Student Name" no-m bdr="0"></textarea>
@@ -40,7 +41,6 @@ ui();
 </select>
 <textarea id="gC" bol2 type="text" oninput="sD()" placeholder="Class Code" no-m bdr="0"></textarea>
 <textarea id="d" bol2 mid type="text" oninput="sD()" placeholder="Details" no-m bdr="0"></textarea>
-<a bdr="0" bbg2 item no-m onmousedown="addPoint()" bol2><i class="fas fa-plus"></i></a>
 <p id="tP">Total Points: 0</p>
 </section>
 </screen>
