@@ -18,7 +18,7 @@ ui();
 </setup>
 <script src='https://ise.web.app/load.js'></script>
 <body>
-<cont top bar bbg center fixed ><p id="clock"></p></nav>
+<cont top bar bbg center fixed><p id="clock"></p></cont>
 <screen id="classes" center>
 <div id="classList" flex></div>
 <a bdr="0" bbg2 onclick="addClass()">Add Class</a>
@@ -70,14 +70,14 @@ for (const [classId, data] of Object.entries(classData)) {
 addClass(classId, data);
 }
 };
-const addPoint = (pointValue = '1') => {
+const addPoint = () => {
 const pointsSection = document.querySelector('section');
 const date = new Date().toLocaleString();
 const pointParagraph = document.createElement('p');
 pointParagraph.setAttribute('bol2', '');
 pointParagraph.setAttribute('bdr', '0');
 pointParagraph.classList.add('point');
-pointParagraph.textContent = `${pointValue} - ${date}`;
+pointParagraph.textContent = `1 - ${date}`; // Default point value
 pointsSection.appendChild(pointParagraph);
 pointParagraph.addEventListener('contextmenu', (e) => {
 e.preventDefault();
@@ -126,7 +126,20 @@ document.querySelector('#sT').value = data.sT || 'Major';
 document.querySelector('#gC').value = data.gC || '';
 document.querySelector('#d').value = data.d || '';
 document.querySelectorAll('section p.point').forEach(p => p.remove());
-data.points.forEach(point => addPoint(point.pointValue));
+data.points.forEach(point => {
+const pointParagraph = document.createElement('p');
+pointParagraph.setAttribute('bol2', '');
+pointParagraph.setAttribute('bdr', '0');
+pointParagraph.classList.add('point');
+pointParagraph.textContent = `${point.pointValue} - ${new Date().toLocaleString()}`;
+document.querySelector('section').appendChild(pointParagraph);
+pointParagraph.addEventListener('contextmenu', (e) => {
+e.preventDefault();
+pointParagraph.remove();
+updateTotalPoints();
+});
+});
+updateTotalPoints();
 };
 const updateClock = () => {
 const now = new Date();
