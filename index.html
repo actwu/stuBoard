@@ -46,6 +46,7 @@ ui();
 </screen>
 <script>
 const clsData = JSON.parse(localStorage.getItem('clsData')) || {};
+
 const saveData = () => {
 const clsId = document.querySelector('#clsDetails').dataset.clsId;
 if (!clsId) return;
