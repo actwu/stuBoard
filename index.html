@@ -1,6 +1,6 @@
 <style>
 body { all: none; color: #fff; }
-section { display: grid; margin: 3.5px; gap: 3.5px; grid-template-columns: repeat(auto-fill, minmax(128px, 0.8fr)); max-height: 400px;}
+section { display: grid; margin: 3.5px; gap: 3.5px; grid-template-columns: repeat(auto-fill, minmax(128px, 0.8fr)); max-height: 400px; }
 textarea { text-align: center; height: 0.235in; }
 textarea:first-of-type, textarea:nth-of-type(5), textarea:nth-of-type(6), p, a { grid-column: span 2; }
 textarea:nth-of-type(2), textarea:nth-of-type(3), textarea:nth-of-type(4) { grid-column: span 1; }
@@ -21,136 +21,158 @@ ui();
 <body>
 <cont top bar bbg center fixed><p id="clock"></p></cont>
 <screen id="classes" center>
-<div id="classList" flex></div>
-<a bdr="0" bbg2 onclick="addClass()">Add Class</a>
+<div id="clsList" flex></div>
+<a bdr="0" bbg2 onclick="addCls()">Add Class</a>
 </screen>
-<screen id="classinfo" hide scroll center>
+<screen id="clsInfo" hide scroll center>
 <nav bbg bdr="0">
-<a onclick="show('#classes'); hide('#classinfo')">Back</a>
-<a bdr="0" bbg2 onclick="shareData()"><i class="fas fa-share-alt"></i></a>
-<a bdr="0" bbg2 item no-m onmousedown="addPoint()" bol2><i class="fas fa-plus"></i></a>
+<a onclick="show('#classes'); hide('#clsInfo')">Back</a>
+<a bdr="0" bbg2 onclick="shareCls()"><i class="fas fa-share-alt"></i></a>
+<a bdr="0" bbg2 item no-m onmousedown="addPnt()" bol2><i class="fas fa-plus"></i></a>
 </nav>
-<section id="classDetails" data-class-id="">
-<textarea id="sN" bol2 type="text" oninput="sD()" placeholder="Student Name" no-m bdr="0"></textarea>
-<textarea id="tN" bol2 type="text" oninput="sD()" placeholder="Teacher Name" no-m bdr="0"></textarea>
-<textarea id="t" bol2 type="text" oninput="sD()" placeholder="Time" no-m bdr="0"></textarea>
-<textarea id="tE" bol2 type="text" oninput="sD()" placeholder="Teacher Email" no-m bdr="0"></textarea>
-<select id="sT" bol2 oninput="sD()" no-m bdr="0">
+<section id="clsDetails" data-cls-id="">
+<textarea id="stdName" bol2 type="text" oninput="saveData()" placeholder="Student Name" no-m bdr="0"></textarea>
+<textarea id="tchrName" bol2 type="text" oninput="saveData()" placeholder="Teacher Name" no-m bdr="0"></textarea>
+<textarea id="clsTime" bol2 type="text" oninput="saveData()" placeholder="Time" no-m bdr="0"></textarea>
+<textarea id="tchrEmail" bol2 type="text" oninput="saveData()" placeholder="Teacher Email" no-m bdr="0"></textarea>
+<select id="subType" bol2 oninput="saveData()" no-m bdr="0">
 <option value="Major">Major</option>
 <option value="Minor">Minor</option>
 </select>
-<textarea id="gC" bol2 type="text" oninput="sD()" placeholder="Class Code" no-m bdr="0"></textarea>
-<textarea id="d" bol2 mid type="text" oninput="sD()" placeholder="Details" no-m bdr="0"></textarea>
-<p id="tP">Total Points: 0</p>
+<textarea id="clsCode" bol2 type="text" oninput="saveData()" placeholder="Class Code" no-m bdr="0"></textarea>
+<textarea id="clsDetails" bol2 mid type="text" oninput="saveData()" placeholder="Details" no-m bdr="0"></textarea>
+<p id="totalPnts">Points: 0</p>
 </section>
 </screen>
 <script>
-const classData = JSON.parse(localStorage.getItem('classData')) || {};
-const sD = () => {
-const classId = document.querySelector('#classDetails').dataset.classId;
-if (!classId) return;
-const d = {
-sN: document.querySelector('#sN').value,
-tN: document.querySelector('#tN').value,
-t: document.querySelector('#t').value,
-tE: document.querySelector('#tE').value,
-sT: document.querySelector('#sT').value,
-gC: document.querySelector('#gC').value,
-d: document.querySelector('#d').value,
+const clsData = JSON.parse(localStorage.getItem('clsData')) || {};
+const saveData = () => {
+const clsId = document.querySelector('#clsDetails').dataset.clsId;
+if (!clsId) return;
+const data = {
+stdName: document.querySelector('#stdName').value,
+tchrName: document.querySelector('#tchrName').value,
+clsTime: document.querySelector('#clsTime').value,
+tchrEmail: document.querySelector('#tchrEmail').value,
+subType: document.querySelector('#subType').value,
+clsCode: document.querySelector('#clsCode').value,
+clsDetails: document.querySelector('#clsDetails').value,
 points: []
 };
-document.querySelectorAll('section p.point').forEach(pointParagraph => {
-d.points.push({ pointValue: pointParagraph.textContent });
+document.querySelectorAll('section p.pnt').forEach(pnt => {
+data.points.push({ pntValue: pnt.textContent });
 });
-classData[classId] = d;
-localStorage.setItem('classData', JSON.stringify(classData));
+clsData[clsId] = data;
+localStorage.setItem('clsData', JSON.stringify(clsData));
 };
-const aL = () => {
-for (const [classId, data] of Object.entries(classData)) {
-addClass(classId, data);
+
+const loadAllCls = () => {
+for (const [clsId, data] of Object.entries(clsData)) {
+addCls(clsId, data);
 }
 };
-const addPoint = () => {
+
+const addPnt = () => {
 const pointsSection = document.querySelector('section');
 const date = new Date().toLocaleString();
-const pointParagraph = document.createElement('p');
-pointParagraph.setAttribute('bol2', '');
-pointParagraph.setAttribute('bdr', '0');
-pointParagraph.classList.add('point');
-pointParagraph.textContent = `1 - ${date}`; // Default point value
-pointsSection.appendChild(pointParagraph);
-pointParagraph.addEventListener('contextmenu', (e) => {
+const pnt = document.createElement('p');
+pnt.setAttribute('bol2', '');
+pnt.setAttribute('bdr', '0');
+pnt.classList.add('pnt');
+pnt.textContent = `1 - ${date}`;
+pointsSection.appendChild(pnt);
+pnt.addEventListener('contextmenu', (e) => {
 e.preventDefault();
-pointParagraph.remove();
-updateTotalPoints();
+pnt.remove();
+updatePnts();
+saveData();
 });
-updateTotalPoints();
+updatePnts();
+saveData();
 };
-const updateTotalPoints = () => {
-const totalPoints = document.querySelectorAll('section p.point').length;
-document.getElementById('tP').textContent = `Total Points: ${totalPoints}`;
+
+const updatePnts = () => {
+const total = document.querySelectorAll('section p.pnt').length;
+document.getElementById('totalPnts').textContent = `Points: ${total}`;
 };
-const shareData = () => {
+
+const shareCls = () => {
 const url = new URL(window.location);
-url.searchParams.set('data', JSON.stringify(classData));
+url.searchParams.set('data', JSON.stringify(clsData));
 navigator.clipboard.writeText(url.toString()).then(() => {
 alert('Data shared via URL!');
 });
 };
-const addClass = (classId = Date.now().toString(), data = {}) => {
-const classList = document.getElementById('classList');
-const classItem = document.createElement('a');
-classItem.textContent = `Class ${classList.children.length + 1}`;
-classItem.setAttribute('bol2', '');
-classItem.setAttribute('bdr', '0');
-classItem.onclick = () => {
-show('#classinfo');
+
+const addCls = (clsId = Date.now().toString(), data = {}) => {
+const clsList = document.getElementById('clsList');
+const clsItem = document.createElement('a');
+clsItem.textContent = `Class ${clsList.children.length + 1}`;
+clsItem.setAttribute('bol2', '');
+clsItem.setAttribute('bdr', '0');
+clsItem.onclick = () => {
+show('#clsInfo');
 hide('#classes');
-loadClassData(classId, data);
+loadClsData(clsId, data);
 };
-classItem.addEventListener('contextmenu', (e) => {
+clsItem.addEventListener('contextmenu', (e) => {
 e.preventDefault();
-classItem.remove();
-delete classData[classId];
-localStorage.setItem('classData', JSON.stringify(classData));
+clsItem.remove();
+delete clsData[clsId];
+localStorage.setItem('clsData', JSON.stringify(clsData));
 });
-classList.appendChild(classItem);
+clsList.appendChild(clsItem);
 };
-const loadClassData = (classId, data) => {
-document.querySelector('#classDetails').dataset.classId = classId;
-document.querySelector('#sN').value = data.sN || '';
-document.querySelector('#tN').value = data.tN || '';
-document.querySelector('#t').value = data.t || '';
-document.querySelector('#tE').value = data.tE || '';
-document.querySelector('#sT').value = data.sT || 'Major';
-document.querySelector('#gC').value = data.gC || '';
-document.querySelector('#d').value = data.d || '';
-document.querySelectorAll('section p.point').forEach(p => p.remove());
+
+const loadClsData = (clsId, data) => {
+document.querySelector('#clsDetails').dataset.clsId = clsId;
+document.querySelector('#stdName').value = data.stdName || '';
+document.querySelector('#tchrName').value = data.tchrName || '';
+document.querySelector('#clsTime').value = data.clsTime || '';
+document.querySelector('#tchrEmail').value = data.tchrEmail || '';
+document.querySelector('#subType').value = data.subType || 'Major';
+document.querySelector('#clsCode').value = data.clsCode || '';
+document.querySelector('#clsDetails').value = data.clsDetails || '';
+document.querySelectorAll('section p.pnt').forEach(p => p.remove());
 data.points.forEach(point => {
-const pointParagraph = document.createElement('p');
-pointParagraph.setAttribute('bol2', '');
-pointParagraph.setAttribute('bdr', '0');
-pointParagraph.classList.add('point');
-pointParagraph.textContent = `${point.pointValue} - ${new Date().toLocaleString()}`;
-document.querySelector('section').appendChild(pointParagraph);
-pointParagraph.addEventListener('contextmenu', (e) => {
+const pnt = document.createElement('p');
+pnt.setAttribute('bol2', '');
+pnt.setAttribute('bdr', '0');
+pnt.classList.add('pnt');
+pnt.textContent = point.pntValue;
+document.querySelector('section').appendChild(pnt);
+pnt.addEventListener('contextmenu', (e) => {
 e.preventDefault();
-pointParagraph.remove();
-updateTotalPoints();
+pnt.remove();
+updatePnts();
+saveData();
 });
 });
-updateTotalPoints();
+updatePnts();
 };
+
+const loadDataFromUrl = () => {
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('data')) {
+const data = JSON.parse(urlParams.get('data'));
+for (const [clsId, clsInfo] of Object.entries(data)) {
+addCls(clsId, clsInfo);
+}
+}
+};
+
 const updateClock = () => {
 const now = new Date();
 const hours = String(now.getHours()).padStart(2, '0');
 const minutes = String(now.getMinutes()).padStart(2, '0');
 document.getElementById('clock').textContent = `${hours}:${minutes}`;
 };
+
 window.onload = () => {
-aL();
+loadAllCls();
+loadDataFromUrl();
 show('#classes');
-hide('#classinfo');
+hide('#clsInfo');
 setInterval(updateClock, 1000);
 };
 </script>
